@@ -11,15 +11,23 @@ app.use(cors());
 app.use(express.json());
 
 // mongodb connection
-const uri = "mongodb+srv://mrrajon01:GEW4hD9rmf6zCnt@cluster-warehouse-manag.bfvdp.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster-warehouse-manag.bfvdp.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-client.connect(err => {
-    const collection = client.db("test").collection("devices");
-    console.log("db connected...");
-    // perform actions on the collection object
-    client.close();
-});
 
+async function run() {
+    try {
+        await client.connect();
+        const inventoryCollection = client.db('warehouse-management').collection('products');
+
+        app.get('/inventory', (req, res) => {
+            res.send('hello from mongo!');
+        })
+    }
+
+    finally {
+    }
+}
+run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
