@@ -17,11 +17,15 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         await client.connect();
-        const inventoryCollection = client.db('warehouse-management').collection('products');
+        const inventoryCollection = client.db('electronics-inventory-management').collection('items');
 
-        app.get('/inventory', (req, res) => {
-            res.send('hello from mongo!');
-        })
+        app.get('/inventory', async (req, res) => {
+            const query = {};
+            const cursor = inventoryCollection.find(query);
+            const inventoryItems = await cursor.toArray();
+
+            res.send(inventoryItems);
+        });
     }
 
     finally {
@@ -31,7 +35,7 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send("Warehouse Management server is running...")
+    res.send("Electronics Inventory Management server is running...")
 });
 
 app.listen(port, () => {
