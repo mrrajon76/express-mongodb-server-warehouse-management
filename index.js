@@ -19,6 +19,7 @@ async function run() {
         await client.connect();
         const inventoryCollection = client.db('electronics-inventory-management').collection('items');
 
+        // Get all items
         app.get('/inventory', async (req, res) => {
             const query = {};
             const cursor = inventoryCollection.find(query);
@@ -26,12 +27,22 @@ async function run() {
             res.send(inventoryItems);
         });
 
+        // Get a single item
         app.get('/inventory/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const singleItem = await inventoryCollection.findOne(query);
             res.send(singleItem);
-        })
+        });
+
+        // Get items of a specific user
+        // app.get('/inventory/:user', async (req, res) => {
+        //     const user = req.params.user;
+        //     const query = { addedBy: ObjectId(user) };
+        //     const cursor = inventoryCollection.find(query);
+        //     const items = await cursor.toArray();
+        //     res.send(items);
+        // });
     }
 
     finally {
