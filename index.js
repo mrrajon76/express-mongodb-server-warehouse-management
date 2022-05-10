@@ -21,9 +21,18 @@ async function run() {
 
         // Get all items
         app.get('/inventory', async (req, res) => {
-            const query = {};
-            const cursor = inventoryCollection.find(query);
-            const inventoryItems = await cursor.toArray();
+            const email = req.query.email;
+            let inventoryItems;
+            if (email) {
+                const query = { addedBy: email };
+                const cursor = inventoryCollection.find(query);
+                inventoryItems = await cursor.toArray();
+            }
+            else {
+                const query = {};
+                const cursor = inventoryCollection.find(query);
+                inventoryItems = await cursor.toArray();
+            }
             res.send(inventoryItems);
         });
 
@@ -35,14 +44,33 @@ async function run() {
             res.send(singleItem);
         });
 
-        // Get items of a specific user
-        // app.get('/inventory/:user', async (req, res) => {
-        //     const user = req.params.user;
-        //     const query = { addedBy: ObjectId(user) };
-        //     const cursor = inventoryCollection.find(query);
-        //     const items = await cursor.toArray();
-        //     res.send(items);
-        // });
+        // Update quantity & sold
+        app.post('/inventory/:id', async (req, res) => {
+            const id = req.params.id;
+            const data = req.body;
+            const newStock = data.newQuantity;
+            const newSold = data.newSold;
+            const options = { upsert: true };
+            let updateDoc;
+            if (newSold === false) {
+                updateDoc = {
+                    $set: {
+                        quantity: newStock,
+                    },
+                };
+            }
+            else {
+                updateDoc = {
+                    $set: {
+                        quantity: newStock,
+                        sold: newSold
+                    },
+                };
+            }
+            const query = { _id: ObjectId(id) };
+            const singleItem = await inventoryCollection.updateOne(query, updateDoc, options);
+            res.send({ result: 'Quantity and Sold field updated successfully' });
+        });
     }
 
     finally {
