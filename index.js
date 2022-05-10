@@ -44,6 +44,14 @@ async function run() {
             res.send(singleItem);
         });
 
+        // Add new item
+        app.post('/inventory', async (req, res) => {
+            const newItem = req.body;
+            console.log(newItem);
+            const result = await inventoryCollection.insertOne(newItem);
+            res.send({ result: 'hello' });
+        });
+
         // Update quantity & sold
         app.post('/inventory/:id', async (req, res) => {
             const id = req.params.id;
@@ -68,7 +76,7 @@ async function run() {
                 };
             }
             const query = { _id: ObjectId(id) };
-            const singleItem = await inventoryCollection.updateOne(query, updateDoc, options);
+            const result = await inventoryCollection.updateOne(query, updateDoc, options);
             res.send({ result: 'Quantity and Sold field updated successfully' });
         });
     }
